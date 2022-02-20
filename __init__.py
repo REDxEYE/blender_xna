@@ -131,7 +131,10 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                 if s_bone.parent_id != -1:
                     bl_parent = bl_bones[s_bone.parent_id]
                     bl_bone.parent = bl_parent
-                quat = Quaternion(s_bone.blender_quat).to_matrix().to_4x4()
+                if s_bone.quat:
+                    quat = Quaternion(s_bone.blender_quat).to_matrix().to_4x4()
+                else:
+                    quat = Quaternion([1, 0, 0, 0])
                 bl_bone.head = (Vector(s_bone.blender_pos) * self.scale)
                 bl_bone.tail = bl_bone.head + ((Vector([1, 0, 0]) * self.scale) @ quat)
 
