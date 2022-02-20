@@ -134,7 +134,7 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                 if s_bone.quat:
                     quat = Quaternion(s_bone.blender_quat).to_matrix().to_4x4()
                 else:
-                    quat = Quaternion([1, 0, 0, 0])
+                    quat = Quaternion([1, 0, 0, 0]).to_matrix().to_4x4()
                 bl_bone.head = (Vector(s_bone.blender_pos) * self.scale)
                 bl_bone.tail = bl_bone.head + ((Vector([1, 0, 0]) * self.scale) @ quat)
 
