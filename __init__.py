@@ -152,12 +152,11 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                 if s_bone.parent_id != -1:
                     bl_parent = bl_bones[s_bone.parent_id]
                     bl_bone.parent = bl_parent
+                bl_bone.head = (Vector(s_bone.blender_pos) * self.scale)
+                bl_bone.tail = bl_bone.head + ((Vector([0, 0.05, 0]) * self.scale))
                 if s_bone.quat:
                     quat = Quaternion(s_bone.blender_quat).to_matrix().to_4x4()
-                else:
-                    quat = Quaternion([1, 0, 0, 0]).to_matrix().to_4x4()
-                bl_bone.head = (Vector(s_bone.blender_pos) * self.scale)
-                bl_bone.tail = bl_bone.head + ((Vector([1, 0, 0]) * self.scale) @ quat)
+                    bl_bone.matrix = Matrix.Translation(s_bone.blender_pos) @ quat
 
             for model_obj in model_objects:
                 modifier = model_obj.modifiers.new(type="ARMATURE", name="Armature")
