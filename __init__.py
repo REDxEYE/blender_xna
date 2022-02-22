@@ -6,7 +6,7 @@ from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProp
 import numpy as np
 from mathutils import Vector, Euler, Matrix, Quaternion
 
-from .py_xna_lib import parse_ascii_mesh_from_file
+from .py_xna_lib import parse_ascii_mesh_from_file, parse_bone_names_from_file
 
 bl_info = {
     "name": "Blender XNA",
@@ -57,13 +57,21 @@ class XNA_OT_ascii_import(bpy.types.Operator):
         for file in self.files:
             file = Path(directory / file.name)
             external_skeleton_path = file.with_name(file.stem + '_skel.ascii')
+            remap_path = file.with_name('bonenames.txt')
+            if remap_path.exists():
+                print('Loading remap table')
+                remap_table = parse_bone_names_from_file(remap_path.as_posix())
+            else:
+                remap_table = None
             if external_skeleton_available := external_skeleton_path.exists():
                 skeleton = parse_ascii_mesh_from_file(external_skeleton_path.as_posix())
             else:
                 skeleton = None
-            print(external_skeleton_path, external_skeleton_available)
             model = parse_ascii_mesh_from_file(file.as_posix(), external_skeleton_available)
             bone_source = skeleton or model
+            for bone in bone_source.bones:
+                if remap_table is not None:
+                    bone.name = remap_table.get(bone.name, bone.name)
             model_objects = []
             for mesh in model.meshes:
                 mesh_name = mesh.name
@@ -109,6 +117,17 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                             if weight > 0:
                                 bone_name = bone_source.bones[bone_index].name
                                 weight_groups[bone_name].add([n], weight, 'REPLACE')
+                else:
+                    bone_ids = []
+                    for bone_ids_ in mesh.bone_ids:
+                        bone_ids.extend(bone_ids_)
+                    bone_ids = set(bone_ids)
+                    weight_groups = {str(bone): mesh_obj.vertex_groups.new(name=str(bone)) for bone in bone_ids}
+                    for n, (bone_indices, bone_weights) in enumerate(zip(mesh.bone_ids, mesh.weights)):
+                        for bone_index, weight in zip(bone_indices, bone_weights):
+                            if weight > 0:
+                                bone_name = str(bone_index)
+                                weight_groups[bone_name].add([n], weight, 'REPLACE')
 
                 bpy.context.scene.collection.objects.link(mesh_obj)
                 model_objects.append(mesh_obj)
@@ -124,6 +143,8 @@ class XNA_OT_ascii_import(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='EDIT')
             bl_bones = []
             for bone in bone_source.bones:
+                if remap_table is not None:
+                    bone.name = remap_table.get(bone.name, bone.name)
                 bl_bone = armature.edit_bones.new(bone.name[-63:])
                 bl_bones.append(bl_bone)
 
