@@ -6,6 +6,7 @@ from bpy.props import StringProperty, BoolProperty, CollectionProperty, EnumProp
 import numpy as np
 from mathutils import Vector, Euler, Matrix, Quaternion
 
+from .material_lib.material_generator import generate_material
 from .py_xna_lib import parse_ascii_mesh_from_file, parse_bone_names_from_file
 
 bl_info = {
@@ -94,6 +95,7 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                 mesh_data.use_auto_smooth = True
                 if mesh.material:
                     get_material(mesh.material.name, mesh_obj)
+                    generate_material(mesh.material, directory)
 
                 vertex_indices = np.zeros((len(mesh_data.loops, )), dtype=np.uint32)
                 mesh_data.loops.foreach_get('vertex_index', vertex_indices)
