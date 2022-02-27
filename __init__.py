@@ -7,7 +7,7 @@ import numpy as np
 from mathutils import Vector, Euler, Matrix, Quaternion
 
 from .material_lib.material_generator import generate_material
-from .py_xna_lib import parse_ascii_mesh_from_file, parse_bone_names_from_file
+from .py_xna_lib import parse_ascii_mesh_from_file, parse_bone_names_from_file, parse_ascii_material_from_file
 
 bl_info = {
     "name": "Blender XNA",
@@ -94,8 +94,12 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                 mesh_data.normals_split_custom_set_from_vertices(normals * -1)
                 mesh_data.use_auto_smooth = True
                 if mesh.material:
-                    get_material(mesh.material.name, mesh_obj)
-                    generate_material(mesh.material, directory)
+                    amat_path = file.with_name(mesh.material.name + '.amat')
+                    material = mesh.material
+                    if amat_path.exists():
+                        material = parse_ascii_material_from_file(amat_path.as_posix())
+                    get_material(material.name, mesh_obj)
+                    generate_material(material, directory)
 
                 vertex_indices = np.zeros((len(mesh_data.loops, )), dtype=np.uint32)
                 mesh_data.loops.foreach_get('vertex_index', vertex_indices)

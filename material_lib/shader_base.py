@@ -113,8 +113,8 @@ def ensure_length(array: list, length, filler):
     return array
 
 
-def create_texture(texture_path):
-    return bpy.data.images.load(texture_path)
+def create_texture(texture_path: Path):
+    return bpy.data.images.load(texture_path.as_posix())
 
 
 def get_missing_texture(texture_name: str, fill_color: tuple = (1.0, 1.0, 1.0, 1.0)):
