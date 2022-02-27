@@ -12,7 +12,7 @@ from .py_xna_lib import parse_ascii_mesh_from_file, parse_bone_names_from_file, 
 bl_info = {
     "name": "Blender XNA",
     "author": "RED_EYE",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (3, 0, 0),
     "location": "File > Import > XNA",
     "description": "XNA models (.xna, .ascii)",
