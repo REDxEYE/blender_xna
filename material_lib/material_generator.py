@@ -3,14 +3,15 @@ from ..py_xna_lib import Material
 from .shader_base import *
 
 
-def try_find_texture(root_path: Path, texture_name):
+def try_find_texture(root_path: Path, texture_name, last=False):
     try:
         for file in root_path.glob(f'{Path(texture_name).stem}.*'):
-            print(file,texture_name)
             if file.suffix in ['.png', '.tga', '.dds', '.jpg', '.jpeg', '.bmp']:
                 return file
     except StopIteration:
         return None
+    if not last:
+        return try_find_texture(root_path / 'textures', texture_name, True)
 
 
 def generate_material(material: Material, root_dir: Path):
