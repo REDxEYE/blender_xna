@@ -86,7 +86,7 @@ class XNA_OT_ascii_import(bpy.types.Operator):
                 mesh_data.from_pydata(vertices * self.scale, [], mesh.indices)
                 mesh_data.update()
                 del vertices
-                mesh_data.polygons.foreach_set("use_smooth", np.ones(len(mesh_data.polygons)))
+                mesh_data.polygons.foreach_set("use_smooth", np.ones(len(mesh_data.polygons), np.uint32))
                 normals = np.asarray(mesh.normals, np.float32)
                 normals[:, 0], normals[:, 1], normals[:, 2] = (normals[:, 2].copy(),
                                                                normals[:, 0].copy(),
